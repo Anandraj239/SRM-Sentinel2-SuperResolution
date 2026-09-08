@@ -1,48 +1,55 @@
-# Deep Learning Super Resolution Mapping (SRM)
-### Sentinel-2 Satellite Imagery Enhancement using SwinIR + SegFormer
+# 🛰️ Deep Learning Super Resolution Mapping (SRM)
+### From Medium-Resolution Sentinel-2 Satellite Imagery to Sub-4m Enhanced Products
 
-![Pipeline](results/final_pipeline_result.png)
+[![NTRO](https://img.shields.io/badge/NTRO-SIH%202026-orange?style=flat-square&logo=satellite)](https://www.ntro.gov.in)
+[![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat-square&logo=python)](https://python.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.6.0+cu124-red?style=flat-square&logo=pytorch)](https://pytorch.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![GPU](https://img.shields.io/badge/GPU-NVIDIA%20RTX%204050%20Ada-76b900?style=flat-square&logo=nvidia)](https://www.nvidia.com)
 
-## Problem Statement
-**ID: 26142** | Organization: **NTRO (National Technical Research Organisation)**
-
-Medium-resolution satellite imagery (10-30m) is widely used but insufficient for fine-scale analysis such as identifying small buildings, narrow roads, field boundaries, or localized damage assessment.
-
-## Our Solution
-A deep learning based super resolution framework that enhances Sentinel-2 satellite imagery from **10m → 2.5m resolution (4× upscaling)** using SwinIR Transformer + GAN training.
-
----
-
-## Results
-
-### LR vs SR vs HR Comparison
-![Comparison](results/comparison_result.png)
-
-### Multiple Terrain Types
-| Urban Center | Agricultural |
-|---|---|
-| ![urban](results/patches/urban_center_comparison.png) | ![agri](results/patches/agricultural_comparison.png) |
-
-| Crop Field | Rural Area |
-|---|---|
-| ![crop](results/patches/crop_field_comparison.png) | ![rural](results/patches/rural_area_comparison.png) |
-
-### Segmentation Maps
-![Segmentation](results/segmentation/sentinel2_overlay.png)
+> **SIH 2026 Project** | Problem Statement ID: **26142**
+> **Organization:** National Technical Research Organisation (NTRO)
+> **Team:** KCUF Coders
 
 ---
 
-## Evaluation Metrics
+## 📋 Table of Contents
 
-| Metric | Value |
-|---|---|
-| **PSNR** | 24.66 dB |
-| **SSIM** | 0.7386 |
-| **LPIPS** | 0.3718 |
-| **Training Time** | 15 min 41 sec |
-| **Loss Improvement** | 66.4% |
-| **Scale Factor** | 4× (10m → 2.5m) |
+- [Overview](#-overview)
+- [The Problem](#-the-problem)
+- [Key Innovations](#-key-innovations)
+- [Architecture](#️-architecture)
+- [Dataset](#-dataset)
+- [Results](#-results)
+- [Visual Results](#️-visual-results)
+- [Evaluation Metrics](#-evaluation-metrics)
+- [Installation](#️-installation)
+- [Usage](#-usage)
+- [Project Structure](#-project-structure)
+- [Tech Stack](#-tech-stack)
+- [References](#-references)
 
 ---
 
-## Model Architecture
+## 🌍 Overview
+
+India and global defense/research agencies rely on Sentinel-2 satellite imagery for agriculture monitoring, land-cover mapping, urban planning, disaster assessment, and environmental observation. However, at **10–30 metre resolution**, fine-scale details such as narrow roads, small buildings, field boundaries, and localized damage remain undetectable.
+
+This project builds a **deep learning super-resolution framework** that transforms Sentinel-2 imagery from **10m → 2.5m resolution (4× upscaling)** using **SwinIR Transformer + GAN training**, followed by **SegFormer semantic segmentation** for land cover classification.
+
+---
+
+## 🎯 The Problem
+
+Without high-resolution satellite data:
+
+- Fine-scale features (narrow roads, small buildings) are invisible
+- Crop boundary detection is inaccurate
+- Disaster damage assessment lacks spatial precision
+- Urban mapping misses critical infrastructure details
+
+Commercial high-resolution satellites (Pleiades, WorldView) are expensive and have limited coverage. Our approach **extracts more value from freely available Sentinel-2 data** using deep learning.
+
+---
+
+## 💡 Key Innovations
