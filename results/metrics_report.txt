@@ -1,0 +1,6 @@
+METRICS REPORT
+========================================
+Average PSNR  : 24.6606 dB
+Average SSIM  : 0.7386
+Average LPIPS : 0.3718
+Total Images  : 40
