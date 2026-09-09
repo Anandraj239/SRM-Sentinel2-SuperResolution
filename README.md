@@ -318,8 +318,6 @@ python scripts/segformer_inference.py
 
 ## 📁 Project Structure
 
-## 📁 Project Structure
-
 ```
 SRM-Sentinel2-SuperResolution/
 │
