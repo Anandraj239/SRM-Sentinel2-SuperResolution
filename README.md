@@ -9,7 +9,6 @@
 
 > **SIH 2026 Project** | Problem Statement ID: **26142**
 > **Organization:** National Technical Research Organisation (NTRO)
-> **Team:** KCUF Coders
 
 ---
 
@@ -69,77 +68,81 @@ Commercial high-resolution satellites (Pleiades, WorldView) are expensive and ha
 
 ### Complete Pipeline
 
-Sentinel-2 L2A (10m) from Copernicus
-│
-▼
-┌─────────────────┐
-│ Preprocessing │
-│ Band selection │
-│ Normalization │
-│ Patch cropping │
-└────────┬────────┘
-│
-▼
-┌──────────────────────────────────┐
-│ SwinIR Transformer │
-│ ┌────────────────────────────┐ │
-│ │ Shallow Feature Extraction │ │
-│ │ Conv2d(3→180) │ │
-│ └────────────┬───────────────┘ │
-│ │ │
-│ ┌────────────▼───────────────┐ │
-│ │ 6 × RSTB Blocks │ │
-│ │ (Residual Swin │ │
-│ │ Transformer Blocks) │ │
-│ │ Shifted Window Attention │ │
-│ └────────────┬───────────────┘ │
-│ │ │
-│ ┌────────────▼───────────────┐ │
-│ │ 4× Upsampling Head │ │
-│ │ (nearest+conv) │ │
-│ └────────────────────────────┘ │
-└────────────────┬─────────────────┘
-│
-▼
-SR Output (2.5m equivalent)
-│
-▼
-┌──────────────────────────────────┐
-│ SegFormer-B2 │
-│ Pixel-wise Land Cover Map │
-│ Green=Crops | Grey=Roads │
-│ Red=Buildings | Blue=Water │
-└──────────────────────────────────┘
-│
-▼
-Final Segmentation Map
-
+```
+Sentinel-2 L2A (10m)
+        │
+        ▼
+┌─────────────────────┐
+│   Preprocessing     │
+│   Band selection    │
+│   Normalization     │
+│   Patch cropping    │
+└──────────┬──────────┘
+           │
+           ▼
+┌──────────────────────────────────────┐
+│         SwinIR Transformer           │
+│                                      │
+│  Conv2d(3→180)  Shallow Features     │
+│         │                            │
+│         ▼                            │
+│  ┌─────────────────────────────┐     │
+│  │    6 × RSTB Block           │     │
+│  │  Shifted Window Attention   │     │
+│  │  window size = 8×8          │     │
+│  │  LayerNorm + MLP (ratio=2)  │     │
+│  └────────────┬────────────────┘     │
+│               │                      │
+│               ▼                      │
+│  nearest+conv  4× Upsample           │
+└───────────────┬──────────────────────┘
+                │
+                ▼
+      SR Output (2.5m equivalent)
+                │
+                ▼
+┌──────────────────────────────────────┐
+│         SegFormer-B2                 │
+│   Pixel-wise Land Cover Map          │
+│   Green=Crops  │  Grey=Roads         │
+│   Red=Buildings│  Blue=Water         │
+└───────────────┬──────────────────────┘
+                │
+                ▼
+       Final Segmentation Map
+```
 
 ### SwinIR Model Details
 
+### SwinIR Model Details
+
+```
 Input (128×128×3)
-│
-▼
-Conv2d(3 → 180) ← Shallow Feature Extraction
-│
-▼
-6 × RSTB Block ← Deep Feature Extraction
-├── 6 × SwinTransformerBlock
-│ ├── Shifted Window Attention (window=8×8)
-│ ├── LayerNorm
-│ └── MLP (ratio=2)
-└── Conv2d(180→180)
-│
-▼
-LayerNorm + Conv ← Feature Fusion
-│
-▼
-nearest+conv Upsample 4× ← Reconstruction
-│
-▼
+        │
+        ▼
+Conv2d(3 → 180)
+← Shallow Feature Extraction
+        │
+        ▼
+6 × RSTB Block
+← Deep Feature Extraction
+   ├── 6 × SwinTransformerBlock
+   │     ├── Shifted Window Attention (window=8×8)
+   │     ├── LayerNorm
+   │     └── MLP (ratio=2)
+   └── Conv2d(180→180)
+        │
+        ▼
+LayerNorm + Conv
+← Feature Fusion
+        │
+        ▼
+nearest+conv Upsample 4×
+← Reconstruction
+        │
+        ▼
 Output (512×512×3)
-
-
+```
 ---
 
 ## 📦 Dataset
@@ -315,64 +318,68 @@ python scripts/segformer_inference.py
 
 ## 📁 Project Structure
 
+## 📁 Project Structure
+
+```
 SRM-Sentinel2-SuperResolution/
 │
 ├── 📂 scripts/
-│ ├── prepare_dataset.py # Create LR-HR pairs from Sentinel-2
-│ ├── train_swinir_satellite.yml # Training configuration
-│ ├── full_inference.py # End-to-end SR + Segmentation
-│ ├── segformer_inference.py # SegFormer land cover mapping
-│ ├── calculate_metrics.py # PSNR, SSIM, LPIPS evaluation
-│ ├── compare_results.py # LR vs SR vs HR comparison
-│ ├── final_comparison.py # 4-panel pipeline result
-│ ├── training_summary.py # Training statistics report
-│ ├── visualize.py # Sentinel-2 visualization
-│ └── crop_patch.py # Patch extraction
+│   ├── prepare_dataset.py          # Create LR-HR pairs from Sentinel-2
+│   ├── train_swinir_satellite.yml  # Training configuration
+│   ├── full_inference.py           # End-to-end SR + Segmentation
+│   ├── segformer_inference.py      # SegFormer land cover mapping
+│   ├── calculate_metrics.py        # PSNR, SSIM, LPIPS evaluation
+│   ├── compare_results.py          # LR vs SR vs HR comparison
+│   ├── final_comparison.py         # 4-panel pipeline result
+│   ├── training_summary.py         # Training statistics report
+│   ├── visualize.py                # Sentinel-2 visualization
+│   └── crop_patch.py               # Patch extraction
 │
 ├── 📂 results/
-│ ├── comparison_result.png # LR vs SR vs HR (3-panel)
-│ ├── final_pipeline_result.png # Full pipeline (4-panel)
-│ ├── sentinel2_SR_output.png # Full SR output image
-│ ├── metrics_report.txt # Quantitative metrics
-│ ├── training_log.log # Complete training log
-│ ├── 📂 patches/
-│ │ ├── urban_center_comparison.png
-│ │ ├── agricultural_comparison.png
-│ │ ├── crop_field_comparison.png
-│ │ ├── mixed_land_comparison.png
-│ │ ├── rural_area_comparison.png
-│ │ └── outskirts_comparison.png
-│ └── 📂 segmentation/
-│ ├── sentinel2_segmentation.png
-│ └── sentinel2_overlay.png
+│   ├── comparison_result.png       # LR vs SR vs HR (3-panel)
+│   ├── final_pipeline_result.png   # Full pipeline (4-panel)
+│   ├── sentinel2_SR_output.png     # Full SR output image
+│   ├── metrics_report.txt          # Quantitative metrics
+│   ├── training_log.log            # Complete training log
+│   ├── 📂 patches/
+│   │   ├── urban_center_comparison.png
+│   │   ├── agricultural_comparison.png
+│   │   ├── crop_field_comparison.png
+│   │   ├── mixed_land_comparison.png
+│   │   ├── rural_area_comparison.png
+│   │   └── outskirts_comparison.png
+│   └── 📂 segmentation/
+│       ├── sentinel2_segmentation.png
+│       └── sentinel2_overlay.png
 │
-├── demo.py # Automated demo script
-├── requirements.txt # pip dependencies
+├── demo.py                         # Automated demo script
+├── requirements.txt                # pip dependencies
 ├── .gitignore
 └── README.md
-
+```
 
 ---
 
 ## 💻 Tech Stack
 
+```
 ┌─────────────────┬──────────────────────────────────────────────┐
-│ Category │ Tools / Libraries │
+│ Category        │ Tools / Libraries                            │
 ├─────────────────┼──────────────────────────────────────────────┤
-│ Language │ Python 3.10 │
-│ Deep Learning │ PyTorch 2.6.0+cu124 │
-│ SR Model │ SwinIR-Medium (11.7M parameters) │
-│ Segmentation │ SegFormer-B2 (HuggingFace Transformers) │
-│ Training FW │ BasicSR 1.4.2 │
-│ GIS / Remote │ GDAL, Rasterio, Pyproj, Shapely │
-│ Sensing │ │
-│ Visualization │ Matplotlib, OpenCV, PIL │
-│ Metrics │ LPIPS, scikit-image (PSNR/SSIM) │
-│ GPU / Hardware │ NVIDIA RTX 4050 Laptop (6GB VRAM) │
-│ CUDA │ 12.4 / PyTorch cu124 │
-│ Data Source │ ESA Copernicus Browser (Sentinel-2 L2A) │
-│ OS │ Windows 11 │
+│ Language        │ Python 3.10                                  │
+│ Deep Learning   │ PyTorch 2.6.0+cu124                          │
+│ SR Model        │ SwinIR-Medium (11.7M parameters)             │
+│ Segmentation    │ SegFormer-B2 (HuggingFace Transformers)      │
+│ Training FW     │ BasicSR 1.4.2                                │
+│ GIS / Remote    │ GDAL, Rasterio, Pyproj, Shapely             │
+│ Visualization   │ Matplotlib, OpenCV, PIL                      │
+│ Metrics         │ LPIPS, scikit-image (PSNR/SSIM)             │
+│ GPU / Hardware  │ NVIDIA RTX 4050 Laptop (6GB VRAM)           │
+│ CUDA            │ 12.4 / PyTorch cu124                         │
+│ Data Source     │ ESA Copernicus Browser (Sentinel-2 L2A)      │
+│ OS              │ Windows 11                                   │
 └─────────────────┴──────────────────────────────────────────────┘
+```
 
 
 ---
