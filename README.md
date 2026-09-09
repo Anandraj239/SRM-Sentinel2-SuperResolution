@@ -86,12 +86,12 @@ Sentinel-2 L2A (10m)
 │  Conv2d(3→180)  Shallow Features    	│
 │         │                           	│
 │         ▼                            │
-│  ┌──────────────────────────	│
+│  ┌─────────────────────────────┐     │
 │  │    6 × RSTB Block           │     │
 │  │  Shifted Window Attention   │     │
 │  │  window size = 8×8          │     │
 │  │  LayerNorm + MLP (ratio=2)  │     │
-│  └────────────┬─────────────	│
+│  └────────────┬────────────────┘     │
 │               │                     	│
 │               ▼                    	│
 │  nearest+conv  4× Upsample          	│
