@@ -53,13 +53,13 @@ Commercial high-resolution satellites (Pleiades, WorldView) are expensive and ha
 
 ## 💡 Key Innovations
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. SwinIR Transformer fine-tuned on real Sentinel-2 data │
-│ 2. 4× Super Resolution: 10m → 2.5m equivalent resolution │
-│ 3. Synthetic LR-HR pair generation from single Sentinel-2 │
-│ 4. GAN-based perceptual training for sharp edge recovery │
-│ 5. SegFormer land cover segmentation on SR output │
-│ 6. Full end-to-end pipeline: Download → SR → Classify │
-│ 7. Trained in 15 min on RTX 4050 (6GB VRAM) │
+│ 1. SwinIR Transformer fine-tuned on real Sentinel-2 data 	│
+│ 2. 4× Super Resolution: 10m → 2.5m equivalent resolution 	│
+│ 3. Synthetic LR-HR pair generation from single Sentinel-2 	│
+│ 4. GAN-based perceptual training for sharp edge recovery 	│
+│ 5. SegFormer land cover segmentation on SR output 		│
+│ 6. Full end-to-end pipeline: Download → SR → Classify 	│
+│ 7. Trained in 15 min on RTX 4050 (6GB VRAM) 			│
 └─────────────────────────────────────────────────────────────────┘
 
 ---
@@ -81,10 +81,10 @@ Sentinel-2 L2A (10m)
            │
            ▼
 ┌──────────────────────────────────────┐
-│         SwinIR Transformer           │
-│                                      │
-│  Conv2d(3→180)  Shallow Features     │
-│         │                            │
+│         SwinIR Transformer          	│
+│                                     	│
+│  Conv2d(3→180)  Shallow Features    	│
+│         │                           	│
 │         ▼                            │
 │  ┌─────────────────────────────┐     │
 │  │    6 × RSTB Block           │     │
@@ -92,9 +92,9 @@ Sentinel-2 L2A (10m)
 │  │  window size = 8×8          │     │
 │  │  LayerNorm + MLP (ratio=2)  │     │
 │  └────────────┬────────────────┘     │
-│               │                      │
-│               ▼                      │
-│  nearest+conv  4× Upsample           │
+│               │                     	│
+│               ▼                    	│
+│  nearest+conv  4× Upsample          	│
 └───────────────┬──────────────────────┘
                 │
                 ▼
@@ -102,10 +102,10 @@ Sentinel-2 L2A (10m)
                 │
                 ▼
 ┌──────────────────────────────────────┐
-│         SegFormer-B2                 │
-│   Pixel-wise Land Cover Map          │
-│   Green=Crops  │  Grey=Roads         │
-│   Red=Buildings│  Blue=Water         │
+│         SegFormer-B2               	│
+│   Pixel-wise Land Cover Map         	│
+│   Green=Crops  │  Grey=Roads        	│
+│   Red=Buildings│  Blue=Water        	│
 └───────────────┬──────────────────────┘
                 │
                 ▼
@@ -369,10 +369,10 @@ SRM-Sentinel2-SuperResolution/
 │ SR Model        │ SwinIR-Medium (11.7M parameters)             │
 │ Segmentation    │ SegFormer-B2 (HuggingFace Transformers)      │
 │ Training FW     │ BasicSR 1.4.2                                │
-│ GIS / Remote    │ GDAL, Rasterio, Pyproj, Shapely             │
+│ GIS / Remote    │ GDAL, Rasterio, Pyproj, Shapely              │
 │ Visualization   │ Matplotlib, OpenCV, PIL                      │
-│ Metrics         │ LPIPS, scikit-image (PSNR/SSIM)             │
-│ GPU / Hardware  │ NVIDIA RTX 4050 Laptop (6GB VRAM)           │
+│ Metrics         │ LPIPS, scikit-image (PSNR/SSIM)              │
+│ GPU / Hardware  │ NVIDIA RTX 4050 Laptop (6GB VRAM)            │
 │ CUDA            │ 12.4 / PyTorch cu124                         │
 │ Data Source     │ ESA Copernicus Browser (Sentinel-2 L2A)      │
 │ OS              │ Windows 11                                   │
