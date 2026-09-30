@@ -391,7 +391,7 @@ SRM-Sentinel2-SuperResolution/
 5. Salgueiro et al. (2022). **Super-Resolution of Sentinel-2 Imagery Using GANs.** Remote Sensing, MDPI. [DOI](https://doi.org/10.3390/rs14092181)
 6. Dong et al. (2016). **Image Super-Resolution Using Deep CNNs (SRCNN).** IEEE TPAMI. [arXiv](https://arxiv.org/abs/1501.00092)
 7. Garnot et al. (2021). **Panoptic Segmentation of Satellite Image Time Series.** ICCV 2021. [arXiv](https://arxiv.org/abs/2107.07461)
-
+  
 ---
 
 **Anand Raj**
