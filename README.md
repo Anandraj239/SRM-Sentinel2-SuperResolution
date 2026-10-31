@@ -1,5 +1,5 @@
 # 🛰️ Deep Learning Super Resolution Mapping (SRM)
-### From Medium-Resolution Sentinel-2 Satellite Imagery to Sub-4m Enhanced Products
+### Experimental 4× Reconstruction and Land-Cover Mapping
 
 [![NTRO](https://img.shields.io/badge/NTRO-SIH%202026-orange?style=flat-square&logo=satellite)](https://www.ntro.gov.in)
 [![Python](https://img.shields.io/badge/Python-3.10-blue?style=flat-square&logo=python)](https://python.org)
@@ -34,7 +34,7 @@
 
 India and global defense/research agencies rely on Sentinel-2 satellite imagery for agriculture monitoring, land-cover mapping, urban planning, disaster assessment, and environmental observation. However, at **10–30 metre resolution**, fine-scale details such as narrow roads, small buildings, field boundaries, and localized damage remain undetectable.
 
-This project builds a **deep learning super-resolution framework** that transforms Sentinel-2 imagery from **10m → 2.5m resolution (4× upscaling)** using **SwinIR Transformer + GAN training**, followed by **SegFormer semantic segmentation** for land cover classification.
+This project explores a **4× image reconstruction pipeline** for Sentinel-2 imagery using SwinIR, followed by SegFormer land-cover segmentation. A 10 m input is reconstructed on a grid with 2.5 m pixel spacing. This is a model-generated output, **not independently verified 2.5 m satellite information or a 2.5 m ground-truth product**. Training pairs are synthesized by downscaling Sentinel-2 imagery, so the evaluation does not establish recovery of real subpixel details.
 
 ---
 
@@ -53,8 +53,8 @@ Commercial high-resolution satellites (Pleiades, WorldView) are expensive and ha
 
 ## 💡 Key Innovations
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. SwinIR Transformer fine-tuned on real Sentinel-2 data 	│
-│ 2. 4× Super Resolution: 10m → 2.5m equivalent resolution 	│
+│ 1. SwinIR Transformer experiment using Sentinel-2 patches 	│
+│ 2. 4× reconstruction: 10 m input → 2.5 m output grid 	│
 │ 3. Synthetic LR-HR pair generation from single Sentinel-2 	│
 │ 4. GAN-based perceptual training for sharp edge recovery 	│
 │ 5. SegFormer land cover segmentation on SR output 		│
@@ -98,7 +98,7 @@ Sentinel-2 L2A (10m)
 └───────────────┬──────────────────────┘
                 │
                 ▼
-      SR Output (2.5m equivalent)
+      SR Output (4× reconstructed pixel grid)
                 │
                 ▼
 ┌──────────────────────────────────────┐
@@ -150,7 +150,7 @@ Output (512×512×3)
 Dataset: Sentinel-2 L2A (Copernicus Open Access)
 ─────────────────────────────────────────────────
 Satellite : Sentinel-2C
-Processing Level : L2A (Atmospherically Corrected)
+Processing Level : L2A (Atmospherically Corrected; source files not included)
 Tile : T43RGM (India Region)
 Acquisition Date : July 2026
 Spatial Resolution: 10 metres (R10m bands)
@@ -162,9 +162,13 @@ Synthetic Pair Generation:
 ─────────────────────────────────────────────────
 HR patches : 512×512 (original Sentinel-2)
 LR patches : 128×128 (4× bicubic downscale)
-Training pairs : 160
-Validation pairs : 40
-Total patches : 200
+Training pairs : 160 (reported)
+Validation pairs : 40 (reported; synthetic pairs)
+Total patches : 200 (reported)
+
+The source scenes and generated training patches are not included in this repository. HR targets are the original 10 m imagery; LR inputs are made by downscaling those targets 4×. The validation scores therefore measure reconstruction of these synthetic targets and should not be interpreted as independent validation against true 2.5 m imagery.
+
+The checked-in segmentation scripts load a generic SegFormer model pretrained on ADE20K and apply a manually defined class-to-color mapping. They are illustrative outputs, not a custom land-cover model trained or validated for Sentinel-2.
 
 
 ---
@@ -193,7 +197,7 @@ Total patches : 200
 | 4000 | 24.48 | 0.6952 |
 | **5000** | **24.69** | **0.7073** |
 
-### Final Evaluation (40 Validation Images)
+### Reported Evaluation (40 Synthetic Validation Patches)
 
 | Metric | Score | Interpretation |
 |---|---|---|
@@ -228,6 +232,8 @@ Total patches : 200
 
 ## 🛠️ Installation
 
+The checked-in demo opens the result images already in `results/`; it does not run inference. Training imagery, trained model weights, and the external SwinIR/BasicSR source repositories are not included. The helper scripts still contain original-machine paths and need those paths and external artifacts configured before they can run end-to-end.
+
 ### Step 1 — Clone Repository
 
 ```bash
@@ -242,36 +248,27 @@ conda create -n srm python=3.10 -y
 conda activate srm
 ```
 
-### Step 3 — Install GIS Packages
+### Step 3 — Install Python Dependencies
 
 ```bash
-conda install -c conda-forge gdal rasterio pyproj shapely -y
+pip install -r requirements.txt
 ```
 
-### Step 4 — Install PyTorch with CUDA 12.4
+For GeoTIFF/JP2 dataset preparation, install Rasterio and its native dependencies from conda-forge if pip installation fails:
+
+```bash
+conda install -c conda-forge rasterio gdal -y
+```
+
+### Install CUDA-enabled PyTorch (optional)
 
 ```bash
 pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
 ```
 
-### Step 5 — Install Deep Learning Libraries
+The CPU build is sufficient to run `demo.py`; CUDA is needed only for GPU inference or training. Training also requires a compatible SwinIR/BasicSR checkout, Sentinel-2 scenes, and model weights. This repository does not include a runnable BasicSR training configuration or those external artifacts.
 
-```bash
-pip install basicsr timm transformers
-pip install opencv-python Pillow numpy scipy matplotlib
-pip install lpips scikit-image scikit-learn
-pip install tensorboard tqdm pyyaml lmdb
-```
-
-### Step 6 — Clone SwinIR and BasicSR
-
-```bash
-git clone https://github.com/JingyunLiang/SwinIR.git
-git clone https://github.com/XPixelGroup/BasicSR.git
-cd BasicSR && python setup.py develop
-```
-
-### Step 7 — Verify GPU
+### Verify GPU setup
 
 ```bash
 python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
@@ -281,38 +278,14 @@ python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_
 
 ## 🚀 Usage
 
-### Run Full Demo
+### Browse the included results
 
 ```bash
 conda activate srm
-cd SwinIR
 python demo.py
 ```
 
-### Run Inference Only
-
-```bash
-python scripts/full_inference.py
-```
-
-### Train Model
-
-```bash
-cd BasicSR
-python basicsr/train.py -opt scripts/train_swinir_satellite.yml
-```
-
-### Calculate Metrics
-
-```bash
-python scripts/calculate_metrics.py
-```
-
-### Run Segmentation
-
-```bash
-python scripts/segformer_inference.py
-```
+Use `python demo.py --no-open` to list available result files and print the checked-in metrics without opening images. These files are precomputed examples; the demo does not download data, load model weights, or run the SR/segmentation models.
 
 ---
 
@@ -323,7 +296,6 @@ SRM-Sentinel2-SuperResolution/
 │
 ├── 📂 scripts/
 │   ├── prepare_dataset.py          # Create LR-HR pairs from Sentinel-2
-│   ├── train_swinir_satellite.yml  # Training configuration
 │   ├── full_inference.py           # End-to-end SR + Segmentation
 │   ├── segformer_inference.py      # SegFormer land cover mapping
 │   ├── calculate_metrics.py        # PSNR, SSIM, LPIPS evaluation
@@ -338,7 +310,7 @@ SRM-Sentinel2-SuperResolution/
 │   ├── final_pipeline_result.png   # Full pipeline (4-panel)
 │   ├── sentinel2_SR_output.png     # Full SR output image
 │   ├── metrics_report.txt          # Quantitative metrics
-│   ├── training_log.log            # Complete training log
+│   ├── metrics_report.txt          # Reported metrics on synthetic pairs
 │   ├── 📂 patches/
 │   │   ├── urban_center_comparison.png
 │   │   ├── agricultural_comparison.png
@@ -350,7 +322,7 @@ SRM-Sentinel2-SuperResolution/
 │       ├── sentinel2_segmentation.png
 │       └── sentinel2_overlay.png
 │
-├── demo.py                         # Automated demo script
+├── demo.py                         # Opens the checked-in result images
 ├── requirements.txt                # pip dependencies
 ├── .gitignore
 └── README.md
@@ -368,7 +340,7 @@ SRM-Sentinel2-SuperResolution/
 │ Deep Learning   │ PyTorch 2.6.0+cu124                          │
 │ SR Model        │ SwinIR-Medium (11.7M parameters)             │
 │ Segmentation    │ SegFormer-B2 (HuggingFace Transformers)      │
-│ Training FW     │ BasicSR 1.4.2                                │
+│ Training FW     │ BasicSR 1.4.2 (external dependency)           │
 │ GIS / Remote    │ GDAL, Rasterio, Pyproj, Shapely              │
 │ Visualization   │ Matplotlib, OpenCV, PIL                      │
 │ Metrics         │ LPIPS, scikit-image (PSNR/SSIM)              │

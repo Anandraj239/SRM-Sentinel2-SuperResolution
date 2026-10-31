@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments and local configuration
+.env
+.venv/
+venv/
+.idea/
+.vscode/
+
+# Datasets, satellite scenes, and trained model weights
+data/
+*.jp2
+*.tif
+*.tiff
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+experiments/
+checkpoints/
+
+# Generated logs and temporary files
+*.log
+*.tmp
